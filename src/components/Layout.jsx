@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
+import { Outlet } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./SideBar";
 import Footer from "./Footer";
 import Breadcrumb from "./Breadcrumb";
 
-export default function Layout({ children }) {
+export default function Layout() {
   const [open, setOpen] = useState(false);
 
   // закрытие по ESC
@@ -24,7 +25,7 @@ export default function Layout({ children }) {
 
       <main className="main">
         <Breadcrumb />
-        {children}
+        <Outlet />
       </main>
 
       <Footer />

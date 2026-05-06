@@ -1,7 +1,24 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function Header({ onMenuClick }) {
   const [isSearchActive, setIsSearchActive] = useState(false);
+  const auth = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    auth.logout();
+    navigate("/login", { replace: true });
+  };
+
+  const displayName = auth.user?.userName || auth.user?.email || "User";
+  const initials = displayName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   return (
     <header className="header">
@@ -27,16 +44,17 @@ export default function Header({ onMenuClick }) {
         <button className="helper-btn" title="Help">❓</button>
         <button className="notification-btn" title="Notifications">
           🔔
-          <span className="notification-badge">1</span>
         </button>
         <div className="user-profile">
-          <div className="avatar">G</div>
+          <div className="avatar">{initials}</div>
           <div className="user-info">
-            <span className="user-name">Gevorg</span>
+            <span className="user-name">{displayName}</span>
             <span className="user-status">Online</span>
           </div>
         </div>
-        <button className="settings-btn" title="Settings">⚙️</button>
+        <button className="settings-btn" onClick={handleLogout} title="Sign out">
+          🚪
+        </button>
       </div>
     </header>
   );

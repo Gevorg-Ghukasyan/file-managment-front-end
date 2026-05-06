@@ -1,23 +1,41 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
-import "./App.css";
+import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom"
+import { AuthProvider } from "./contexts/AuthContext"
+import PrivateRoute from "./components/PrivateRoute"
+import Layout from "./components/Layout"
+import "./App.css"
 
-import Files from "./pages/FilesPage";
-import Groups from "./pages/GroupsPage";
-import Upload from "./pages/UploadPage";
+import Files from "./pages/FilesPage"
+import Groups from "./pages/GroupsPage"
+import Upload from "./pages/UploadPage"
+import LoginPage from "./pages/LoginPage"
+import RegisterPage from "./pages/RegisterPage"
+import LogoutPage from "./pages/LogoutPage"
 
 function App() {
   return (
-    <BrowserRouter>
-      <Layout>
+    <AuthProvider>
+      <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Files />} />
-          <Route path="/groups" element={<Groups />} />
-          <Route path="/upload" element={<Upload />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/logout" element={<LogoutPage />} />
+
+          <Route
+            path="/"
+            element={
+              <PrivateRoute>
+                <Layout />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Files />} />
+            <Route path="groups" element={<Groups />} />
+            <Route path="upload" element={<Upload />} />
+          </Route>
         </Routes>
-      </Layout>
-    </BrowserRouter>
-  );
+      </BrowserRouter>
+    </AuthProvider>
+  )
 }
 
-export default App;
+export default App

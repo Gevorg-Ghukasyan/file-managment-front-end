@@ -1,13 +1,47 @@
-import { NavLink, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const navItems = [
-  { path: "/upload", icon: "⬆️", label: "Upload" },
-  { path: "/groups", icon: "🧩", label: "Groups" },
   { path: "/", icon: "📁", label: "My Files" },
+  { path: "/groups", icon: "🧩", label: "Groups" },
+  { path: "/upload", icon: "⬆️", label: "Upload" },
 ];
 
 export default function Sidebar({ open, onClose }) {
   const location = useLocation();
+  const navigate = useNavigate();
+  const auth = useAuth();
+  const [storageInfo, setStorageInfo] = useState(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("storage_info");
+    if (stored) {
+      try {
+        setStorageInfo(JSON.parse(stored));
+      } catch (e) {
+        console.error("Error parsing storage info:", e);
+      }
+    }
+  }, []);
+
+  const handleLogout = () => {
+    auth.logout();
+    onClose();
+    navigate("/login", { replace: true });
+  };
+
+  const getStoragePercentage = () => {
+    if (!storageInfo) return 0;
+    return Math.min(100, (storageInfo.percentage || 0));
+  };
+
+  const getStorageText = () => {
+    if (!storageInfo) return "No data";
+    const used = (storageInfo.used / 1024 / 1024).toFixed(2);
+    const available = (storageInfo.available / 1024 / 1024).toFixed(2);
+    return `${used} MB of ${available} MB`;
+  };
 
   return (
     <>
@@ -47,11 +81,14 @@ export default function Sidebar({ open, onClose }) {
           <div className="storage-section">
             <p className="storage-title">Storage</p>
             <div className="storage-bar">
-              <div className="storage-used"></div>
+              <div 
+                className="storage-used"
+                style={{ width: `${getStoragePercentage()}%` }}
+              ></div>
             </div>
-            <p className="storage-text">3.2 GB of 5 GB</p>
+            <p className="storage-text">{getStorageText()}</p>
           </div>
-          <button className="logout-btn">🚪 Sign Out</button>
+          <button className="logout-btn" onClick={handleLogout}>🚪 Sign Out</button>
         </div>
       </aside>
     </>
