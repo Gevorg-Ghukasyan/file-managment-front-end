@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
@@ -12,18 +11,18 @@ export default function Sidebar({ open, onClose }) {
   const location = useLocation();
   const navigate = useNavigate();
   const auth = useAuth();
-  const [storageInfo, setStorageInfo] = useState(null);
-
-  useEffect(() => {
+  const storageInfo = (() => {
     const stored = localStorage.getItem("storage_info");
     if (stored) {
       try {
-        setStorageInfo(JSON.parse(stored));
+        return JSON.parse(stored);
       } catch (e) {
         console.error("Error parsing storage info:", e);
+        return null;
       }
     }
-  }, []);
+    return null;
+  })();
 
   const handleLogout = () => {
     auth.logout();

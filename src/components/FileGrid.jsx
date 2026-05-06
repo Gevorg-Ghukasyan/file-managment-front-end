@@ -20,10 +20,10 @@ export default function FileGrid({ files, onDelete, onDownload }) {
       contentType.includes("word") ||
       contentType.includes("document") ||
       contentType.includes("msword")
-    )
+    ) {
       return "📄";
-    if (contentType.includes("sheet") || contentType.includes("excel"))
-      return "📊";
+    }
+    if (contentType.includes("sheet") || contentType.includes("excel")) return "📊";
     return "📄";
   };
 
@@ -35,33 +35,60 @@ export default function FileGrid({ files, onDelete, onDownload }) {
     });
   };
 
+  const formatBytes = (bytes) => {
+    if (bytes == null || Number.isNaN(Number(bytes))) return "";
+    const value = Number(bytes);
+    if (value < 1024) return `${value} B`;
+    if (value < 1024 * 1024) return `${(value / 1024).toFixed(1)} KB`;
+    if (value < 1024 * 1024 * 1024) return `${(value / 1024 / 1024).toFixed(1)} MB`;
+    return `${(value / 1024 / 1024 / 1024).toFixed(1)} GB`;
+  };
+
+  const resolveFileId = (file) =>
+    file?.id || file?.fileId || file?.fileGuid || file?.Id || file?.ID || file?.fileID || file?.file_id;
+
+  const resolveFileName = (file) =>
+    file?.fileName || file?.name || file?.path || file?.title || "Untitled";
+
   return (
     <div className="grid">
-      {files.map((file) => (
-        <div className="card" key={file.id}>
-          <div className="file-icon">
-            {getFileIcon(file.contentType)}
-          </div>
+      {files.map((file) => {
+        const fileId = resolveFileId(file);
+        const fileName = resolveFileName(file);
+        const createdAt = file.createdAt || file.uploadedAt || file.createdOn;
+        const sizeText = file.formattedSize || formatBytes(file.size || file.length || file.bytes);
 
-          <div className="file-name" title={file.fileName}>
-            {file.fileName}
+        return (
+          <div key={fileId || fileName} className="file-card">
+            <div className="file-info">
+              <div className="file-icon">{getFileIcon(file.contentType)}</div>
+              <div className="file-name" title={fileName}>{fileName}</div>
+              <div className="file-details">
+                <p>{sizeText}</p>
+                <p>{createdAt ? formatDate(createdAt) : ""}</p>
+              </div>
+            </div>
+            <div className="file-buttons">
+              <button
+                title="Download"
+                type="button"
+                onClick={() => onDownload && onDownload(file)}
+                className="file-btn download-btn"
+              >
+                ⬇️ Download
+              </button>
+              <button
+                title="Delete"
+                type="button"
+                onClick={() => onDelete && onDelete(file)}
+                className="file-btn delete-btn"
+              >
+                ❌ Delete
+              </button>
+            </div>
           </div>
-
-          <div style={{ fontSize: "11px", color: "#94a3b8", marginBottom: "auto" }}>
-            <p style={{ margin: "2px 0" }}>{file.formattedSize}</p>
-            <p style={{ margin: "2px 0" }}>{formatDate(file.createdAt)}</p>
-          </div>
-
-          <div className="file-actions">
-            <button title="Download" onClick={() => onDownload && onDownload(file)}>
-              ⬇️
-            </button>
-            <button title="Delete" onClick={() => onDelete(file.id)}>
-              ❌
-            </button>
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

@@ -1,5 +1,4 @@
-import { Navigate, useLocation } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { Navigate } from "react-router-dom";
 
 export default function PrivateRoute({ children }) {
   // Temporarily disabled for UI demo

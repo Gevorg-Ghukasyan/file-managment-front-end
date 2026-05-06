@@ -1,5 +1,5 @@
 import { FILE_API } from "../config";
-import { getAuthHeaders } from "../utils/auth";
+import { getAuthHeaders, getUserFromToken } from "../utils/auth";
 
 const log = (label, data) => {
   console.log(`[FileService] ${label}:`, data);
@@ -47,17 +47,39 @@ export const fileService = {
 
   // POST /api/File/upload - upload file
   uploadFile: async (file) => {
-    // Mock upload for demo
-    console.log("Mock upload:", file.name);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate delay
-    return {
-      id: Date.now(),
-      name: file.name,
-      size: file.size,
-      newUsedStorage: 1000000,
-      availableStorage: 5000000000,
-      usagePercentage: 20
-    };
+    const url = `${FILE_API}/upload`;
+    const headers = getAuthHeaders();
+    log("uploadFile URL", url);
+
+    const formData = new FormData();
+    formData.append('File', file);
+
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          ...headers,
+        },
+        body: formData,
+      });
+
+      log("uploadFile response status", response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        logError("uploadFile", { status: response.status, data: errorData });
+        throw new Error(
+          errorData?.message || `Upload failed: ${response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      log("uploadFile data", data);
+      return data; // FileUploadResponseDto with fileId, newUsedStorage, availableStorage, usagePercentage
+    } catch (error) {
+      logError("uploadFile catch", error);
+      throw error;
+    }
   },
 
   // DELETE /api/File/{id} - delete file
@@ -132,37 +154,58 @@ export const fileService = {
     }
   },
 
-  // GET /api/File/{id} - get file metadata
-  getFileInfo: async (id) => {
-    const url = `${FILE_API}/${id}`;
-    const headers = getAuthHeaders();
-    log("getFileInfo URL", url);
-
-    try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          ...headers,
-        },
-      });
-
-      log("getFileInfo response status", response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        logError("getFileInfo", { status: response.status, data: errorData });
-        throw new Error(
-          errorData?.message || `Get file info failed: ${response.statusText}`
-        );
-      }
-
-      const data = await response.json();
-      log("getFileInfo data", data);
-      return data;
-    } catch (error) {
-      logError("getFileInfo catch", error);
-      throw error;
+  // GET /api/file/quota or /api/File/storage/quota/{userId} - get user storage quota
+  getQuota: async () => {
+    const headers = {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    };
+    const userId = getUserFromToken()?.id;
+    const urls = [`${FILE_API}/quota`];
+    if (userId) {
+      urls.push(`${FILE_API}/storage/quota/${userId}`);
     }
+
+    let lastError = null;
+    for (const url of urls) {
+      log("getQuota URL", url);
+      try {
+        const response = await fetch(url, {
+          method: "GET",
+          headers,
+        });
+
+        log("getQuota response status", response.status);
+
+        if (response.ok) {
+          const data = await response.json();
+          log("getQuota data", data);
+          return data;
+        }
+
+        if (response.status !== 404) {
+          const errorData = await response.json().catch(() => null);
+          logError("getQuota", { status: response.status, data: errorData });
+          throw new Error(
+            errorData?.message || `Failed to get quota: ${response.statusText}`
+          );
+        }
+
+        lastError = response;
+      } catch (error) {
+        logError("getQuota catch", error);
+        lastError = error;
+      }
+    }
+
+    if (lastError) {
+      if (lastError instanceof Response) {
+        const errorData = await lastError.json().catch(() => null);
+        throw new Error(errorData?.message || `Failed to get quota: ${lastError.statusText}`);
+      }
+      throw lastError;
+    }
+
+    throw new Error("Unable to fetch quota");
   },
 };

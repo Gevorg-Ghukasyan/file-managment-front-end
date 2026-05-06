@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fileService } from "../services/FileService";
 
@@ -11,10 +11,39 @@ export default function UploadPage() {
   const [success, setSuccess] = useState(null);
   const [storageInfo, setStorageInfo] = useState(null);
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
+  const folderInputRef = useRef(null);
+
+  const loadQuota = async () => {
+    try {
+      const quota = await fileService.getQuota();
+      const storageData = {
+        used: quota.usedBytes,
+        available: quota.availableBytes,
+        percentage: typeof quota.usagePercentage === "number" ? quota.usagePercentage * 100 : 0,
+        fileCount: quota.fileCount,
+      };
+      setStorageInfo(storageData);
+      localStorage.setItem("storage_info", JSON.stringify(storageData));
+      console.log("[UploadPage] Quota loaded:", storageData);
+    } catch (error) {
+      console.error("[UploadPage] Error loading quota:", error);
+    }
+  };
 
   useEffect(() => {
-    console.log("[UploadPage] Mounted, queue:", uploadQueue);
-  }, [uploadQueue]);
+    console.log("[UploadPage] Mounted");
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    loadQuota();
+  }, []);
+
+  const openFileBrowser = () => {
+    fileInputRef.current?.click();
+  };
+
+  const openFolderBrowser = () => {
+    folderInputRef.current?.click();
+  };
 
   const handleDragOver = (e) => {
     e.preventDefault();
@@ -158,11 +187,6 @@ export default function UploadPage() {
     setUploadQueue(prev => prev.filter(f => f.id !== id));
   };
 
-  const handleRetry = async () => {
-    setError(null);
-    await handleUpload();
-  };
-
   const completedCount = uploadQueue.filter(f => f.status === "completed").length;
   const allCompleted = uploadQueue.length > 0 && uploadQueue.every(f => f.status === "completed");
 
@@ -197,35 +221,44 @@ export default function UploadPage() {
           <p style={{ color: "#94a3b8", marginBottom: "16px" }}>or</p>
           
           <div style={{ display: "flex", gap: "12px", justifyContent: "center" }}>
-            <label style={{ cursor: "pointer" }}>
-              <button className="upload-btn" component="span" disabled={uploading}>
-                Browse Files
-              </button>
-              <input
-                type="file"
-                multiple
-                onChange={handleFileSelect}
-                style={{ display: "none" }}
-                disabled={uploading}
-              />
-            </label>
-            
-            <label style={{ cursor: "pointer" }}>
-              <button className="upload-btn" component="span" disabled={uploading}>
-                Select Folder
-              </button>
-              <input
-                type="file"
-                webkitdirectory=""
-                directory=""
-                onChange={handleFolderSelect}
-                style={{ display: "none" }}
-                disabled={uploading}
-              />
-            </label>
-            
-            <button 
-              className="upload-btn" 
+            <button
+              type="button"
+              className="upload-btn"
+              onClick={openFileBrowser}
+              disabled={uploading}
+            >
+              Browse Files
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileSelect}
+              style={{ display: "none" }}
+              disabled={uploading}
+            />
+
+            <button
+              type="button"
+              className="upload-btn"
+              onClick={openFolderBrowser}
+              disabled={uploading}
+            >
+              Select Folder
+            </button>
+            <input
+              ref={folderInputRef}
+              type="file"
+              webkitdirectory=""
+              directory=""
+              onChange={handleFolderSelect}
+              style={{ display: "none" }}
+              disabled={uploading}
+            />
+
+            <button
+              type="button"
+              className="upload-btn"
               onClick={handleTestUpload}
               style={{ background: "#10b981" }}
               disabled={uploading}
@@ -287,7 +320,7 @@ export default function UploadPage() {
             color: "#d1fae5",
           }}>
             <p style={{ marginBottom: "8px", fontSize: "14px" }}>
-              📊 Storage: {(storageInfo.used / 1024 / 1024).toFixed(2)} MB / {(storageInfo.available / 1024 / 1024).toFixed(2)} MB
+              📊 Storage: {(storageInfo.used / 1024 / 1024).toFixed(2)} MB / {(storageInfo.available / 1024 / 1024).toFixed(2)} MB ({storageInfo.fileCount} files)
             </p>
             <div style={{
               background: "rgba(255, 255, 255, 0.1)",

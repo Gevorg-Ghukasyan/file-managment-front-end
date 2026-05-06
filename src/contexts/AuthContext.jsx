@@ -6,16 +6,13 @@ const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(getAuthToken());
-  const [user, setUser] = useState(getUserFromToken());
-
-  useEffect(() => {
-    setUser(getUserFromToken());
-  }, [token]);
+  const [user, setUser] = useState(() => getUserFromToken());
 
   const login = async ({ userNameOrEmail, password }) => {
     const data = await authService.login({ userNameOrEmail, password });
     setAuthToken(data.token);
     setToken(data.token);
+    setUser(getUserFromToken());
     return data;
   };
 
@@ -24,6 +21,11 @@ export function AuthProvider({ children }) {
     setToken(null);
     setUser(null);
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setUser(getUserFromToken());
+  }, [token]);
 
   const value = useMemo(
     () => ({
@@ -40,6 +42,7 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+/* eslint-disable react-refresh/only-export-components */
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
@@ -47,3 +50,4 @@ export function useAuth() {
   }
   return context;
 }
+/* eslint-enable react-refresh/only-export-components */

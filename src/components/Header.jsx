@@ -1,18 +1,24 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { getUserFromToken } from "../utils/auth";
 
 export default function Header({ onMenuClick }) {
-  const [isSearchActive, setIsSearchActive] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();
+  const tokenUser = getUserFromToken();
 
   const handleLogout = () => {
     auth.logout();
     navigate("/login", { replace: true });
   };
 
-  const displayName = auth.user?.userName || auth.user?.email || "User";
+  const displayName =
+    auth.user?.userName ||
+    auth.user?.email ||
+    tokenUser?.userName ||
+    tokenUser?.email ||
+    "User";
   const initials = displayName
     .split(" ")
     .map((part) => part[0])
@@ -28,16 +34,6 @@ export default function Header({ onMenuClick }) {
         </button>
         <div className="header-divider"></div>
         <h2 className="app-title">📁 DataBox</h2>
-      </div>
-
-      <div className={`search-container ${isSearchActive ? "active" : ""}`}>
-        <span className="search-icon">🔍</span>
-        <input
-          className="search"
-          placeholder="Search files..."
-          onFocus={() => setIsSearchActive(true)}
-          onBlur={() => setIsSearchActive(false)}
-        />
       </div>
 
       <div className="header-right">
