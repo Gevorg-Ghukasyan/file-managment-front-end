@@ -583,8 +583,23 @@ body {
   color: #94a3b8;
 }
 
-.auth-footer a {
+.auth-footer a,
+.auth-link-btn {
   color: #3b82f6;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-link-btn {
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.18);
+  transition: all 0.2s ease;
+}
+
+.auth-link-btn:hover {
+  background: rgba(59, 130, 246, 0.2);
 }
 
 .empty-state p {
@@ -596,8 +611,8 @@ body {
 /* FOOTER */
 .footer {
   position: static;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.4) 100%);
-  border-top: 1px solid rgba(59, 130, 246, 0.1);
+  background: rgba(15, 23, 42, 0.92);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   color: #cbd5e1;
   backdrop-filter: blur(10px);
   z-index: 0;
@@ -659,14 +674,197 @@ body {
   color: #64748b;
 }
 
-.version {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  font-weight: 600;
-}
+  .about-page {
+    padding: 40px 0 100px;
+    align-items: center;
+  }
 
+  .about-page .toolbar {
+    width: min(100%, 1160px);
+    margin: 0 auto 36px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 18px;
+  }
+
+  .about-page .toolbar h2 {
+    font-size: 38px;
+    background: none;
+    color: #f8fafc;
+    letter-spacing: -0.5px;
+  }
+
+  .about-subtitle {
+    margin-top: 10px;
+    color: #94a3b8;
+    max-width: 920px;
+    line-height: 1.8;
+    font-size: 16px;
+  }
+
+  .language-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .language-switcher button {
+    padding: 10px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.04);
+    color: #cbd5e1;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+
+  .language-switcher button.active,
+  .language-switcher button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: #f8fafc;
+  }
+
+  .toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .full-screen-btn {
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(59, 130, 246, 0.16);
+    color: #f8fafc;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .full-screen-btn:hover {
+    background: rgba(59, 130, 246, 0.28);
+    transform: translateY(-1px);
+  }
+
+  .about-card {
+    background: rgba(15, 23, 42, 0.72);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 28px;
+    padding: 38px;
+    max-width: 1180px;
+    width: min(100%, 1180px);
+    margin: 0 auto;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(14px);
+    display: grid;
+    gap: 24px;
+    transition: background 0.3s ease, border 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .about-fullscreen {
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 15, 29, 0.92);
+    backdrop-filter: blur(18px);
+    z-index: 1500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px 24px;
+    overflow-y: auto;
+  }
+
+  .about-fullscreen-card {
+    width: min(100%, 1150px);
+    max-width: 1150px;
+    background: rgba(15, 23, 42, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 30px;
+    padding: 42px;
+    box-shadow: 0 26px 70px rgba(0, 0, 0, 0.35);
+    display: grid;
+    gap: 24px;
+  }
+
+  .fullscreen-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .full-screen-close {
+    font-size: 18px;
+    padding: 12px 16px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.08);
+    color: #f8fafc;
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+
+  .full-screen-close:hover {
+    background: rgba(255, 255, 255, 0.16);
+  }
+
+  .about-fullscreen .about-intro,
+  .about-fullscreen .about-list p,
+  .about-fullscreen .feature-item span:last-child {
+    color: #e2e8f0;
+  }
+
+  .about-fullscreen .about-subtitle {
+    max-width: 100%;
+  }
+
+  .about-card:hover {
+    background: rgba(15, 23, 42, 0.78);
+    box-shadow: 0 20px 44px rgba(0, 0, 0, 0.18);
+  }
+
+  .about-intro {
+    font-size: 15px;
+    color: #dbeafe;
+    line-height: 1.8;
+  }
+
+  .about-list p {
+    font-size: 14px;
+    color: #cbd5e1;
+    line-height: 1.75;
+    margin-bottom: 15px;
+  }
+
+  .about-features {
+    display: grid;
+    gap: 12px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 16px;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.14);
+  }
+
+  .feature-bullet {
+    color: #34d399;
+    font-size: 18px;
+    margin-top: 2px;
+  }
+
+  .feature-item span:last-child {
+    color: #cbd5e1;
+    font-size: 14px;
+    line-height: 1.7;
+  }
 /* SIDEBAR / DRAWER */
 .overlay {
   position: fixed;
